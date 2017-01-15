@@ -1,47 +1,89 @@
 package de.fhdw.bfws115a.team1.caloriecounter.activities.menumanagement;
 
+import android.content.Intent;
 import android.os.Bundle;
+import de.fhdw.bfws115a.team1.caloriecounter.database.DatabaseEntityManager;
+import de.fhdw.bfws115a.team1.caloriecounter.database.DatabaseMenu;
+import de.fhdw.bfws115a.team1.caloriecounter.entities.FixGrocery;
+
+import java.util.ArrayList;
 
 public class Data {
 
-    /* Data variables */
+    /* Member variables */
     private Init mActivity;
-    private String mSelectMenuName;
-    private int mSelectPortionSize;
-    private String mAddedGroceries;
+    private String mMenuName;
+    private double mPortionSize;
+    private ArrayList<FixGrocery> mMenuFixGroceries;
+    private DatabaseMenu mInputMenu;
+    private DatabaseEntityManager mDatabaseEntityManager;
 
     /* Default values */
-    private final String DEFAULT_SELECTMENUNAME = "";
-    private final int DEFAULT_SELECTPORTIONSIZE = 0;
-    private final String DEFAULT_ADDEDGROCERIES = "";
+    private final String DEFAULT_MENUNAME = "";
+    private final double DEFAULT_PORTIONSIZE = 0.0;
 
     /* Keys */
-    private final String KEY_SELECTMENUNAME = "menumanagement1";
-    private final String KEY_SELECTPORTIONSIZE = "menumanagement2";
-    private final String KEY_ADDEDGROCERIES = "menumanagement3";
+    private final String KEY_INPUTMENU = "menumanagement1";
+    private final String KEY_MENUFIXGROCERIES = "menumanagement2";
+    private final String KEY_MENUNAME = "menumanagement3";
+    private final String KEY_PORTIONSIZE = "menumanagement4";
 
+    /**
+     * Method which gets the current layout attributes and put them into an Intent object.
+     * The reasons are possible saving and retrieving options of the data stored.
+     *
+     * @param savedInstanceState A bundle where data can be stored.
+     * @param activity           The current initialised activity.
+     */
     public Data(Bundle savedInstanceState, Init activity) {
         mActivity = activity;
+        mDatabaseEntityManager = new DatabaseEntityManager(activity.getApplicationContext());
 
         if (savedInstanceState == null) {
-            mSelectMenuName = DEFAULT_SELECTMENUNAME;
-            mSelectPortionSize = DEFAULT_SELECTPORTIONSIZE;
-            mAddedGroceries = DEFAULT_ADDEDGROCERIES;
+            Intent intent;
+            intent = mActivity.getIntent();
+            mMenuFixGroceries = new ArrayList<FixGrocery>();
+
+            mInputMenu = (DatabaseMenu) intent.getSerializableExtra("databaseMenu");
+            if (mInputMenu != null) {
+                mMenuName = mInputMenu.getName();
+                mPortionSize = mInputMenu.getAmount();
+                for (FixGrocery fg : mInputMenu.getFixGroceries()) {
+                    mMenuFixGroceries.add(fg);
+                }
+            } else {
+                mInputMenu = null;
+                mMenuName = DEFAULT_MENUNAME;
+                mPortionSize = DEFAULT_PORTIONSIZE;
+            }
+
         } else {
             restoreDataFromBundle(savedInstanceState);
         }
     }
 
+    /**
+     * Provides the possibility of saving the non-persistent data in a bundle.
+     *
+     * @param b The bundle where the data will be saved.
+     */
     public void saveDataInBundle(Bundle b) {
-        b.putString(KEY_SELECTMENUNAME, mSelectMenuName);
-        b.putInt(KEY_SELECTPORTIONSIZE, mSelectPortionSize);
-        b.putString(KEY_ADDEDGROCERIES, mAddedGroceries);
+        b.putSerializable(KEY_INPUTMENU, mInputMenu);
+        b.putSerializable(KEY_MENUFIXGROCERIES, mMenuFixGroceries);
+        b.putString(KEY_MENUNAME, mMenuName);
+        b.putDouble(KEY_PORTIONSIZE, mPortionSize);
     }
 
+    /**
+     * Provides the possibility of retrieving the saved non-persistent data.
+     *
+     * @param b The bundle where the data is saved in.
+     */
     private void restoreDataFromBundle(Bundle b) {
-        mSelectMenuName = b.getString(KEY_SELECTMENUNAME);
-        mSelectPortionSize = b.getInt(KEY_SELECTPORTIONSIZE);
-        mAddedGroceries = b.getString(KEY_ADDEDGROCERIES);
+        mInputMenu = (DatabaseMenu) b.getSerializable(KEY_INPUTMENU);
+        mMenuFixGroceries = (ArrayList<FixGrocery>) b.getSerializable(KEY_MENUFIXGROCERIES);
+        mMenuName = b.getString(KEY_MENUNAME);
+        mPortionSize = b.getInt(KEY_PORTIONSIZE);
     }
 
     /* Getter methods */
@@ -49,16 +91,24 @@ public class Data {
         return mActivity;
     }
 
-    public String getSelectMenuName() {
-        return mSelectMenuName;
+    public String getMenuName() {
+        return mMenuName;
     }
 
-    public int getSelectPortionSize() {
-        return mSelectPortionSize;
+    public double getPortionSize() {
+        return mPortionSize;
     }
 
-    public String getAddedGroceries() {
-        return mAddedGroceries;
+    public ArrayList<FixGrocery> getMenuFixGroceries() {
+        return mMenuFixGroceries;
+    }
+
+    public DatabaseEntityManager getDatabaseEntityManager() {
+        return mDatabaseEntityManager;
+    }
+
+    public DatabaseMenu getInputMenu() {
+        return mInputMenu;
     }
 
     /* Setter methods */
@@ -66,15 +116,11 @@ public class Data {
         this.mActivity = mActivity;
     }
 
-    public void setSelectMenuName(String mSelectMenuName) {
-        this.mSelectMenuName = mSelectMenuName;
+    public void setMenuName(String mMenuName) {
+        this.mMenuName = mMenuName;
     }
 
-    public void setSelectPortionSize(int mSelectPortionSize) {
-        this.mSelectPortionSize = mSelectPortionSize;
-    }
-
-    public void setAddedGroceries(String mAddedGroceries) {
-        this.mAddedGroceries = mAddedGroceries;
+    public void setPortionSize(double mPortionSize) {
+        this.mPortionSize = mPortionSize;
     }
 }

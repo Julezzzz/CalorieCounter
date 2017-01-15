@@ -13,8 +13,8 @@
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:text="@string/menumanagement_lastadd"
-                  android:id="@+id/idMenuManagementLastAdd"
                   android:layout_marginLeft="@dimen/margin"
+                  android:id="@+id/idMenuManagementLastAdd"
                   android:textColor="@color/black"
                   android:textSize="@dimen/textsize"/>
 
@@ -28,8 +28,5 @@
                    android:layout_height="match_parent"
                    android:id="@+id/idMenuManagementDeleteGrocery"
                    android:src="@drawable/xmark_32"/>
-
     </LinearLayout>
-
 </LinearLayout>
-

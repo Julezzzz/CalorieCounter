@@ -6,25 +6,24 @@ import de.fhdw.bfws115a.team1.caloriecounter.R;
 
 public class Gui {
 
+    /* Member variables */
     private TextView mPickedGrocery;
-
     private EditText mSelectedAmount;
-
     private Spinner mSpinner;
-
     private Button mAddAmount;
 
+    /**
+     * Assign layout components to member variables so that they can be changed in backend.
+     *
+     * @param activity The current initialised activity.
+     */
     public Gui(Init activity) {
-        activity.setContentView(R.layout.activity_main);
+        activity.setContentView(R.layout.selectamount);
 
-        /* IDs müssen noch auf das passende Layout referenziert werden!
-        mPickedGrocery = (TextView) activity.findViewById(R.id.idPickedGrocery);
-
-        mSelectedAmount = (EditText) activity.findViewById(R.id.idSelectAmount);
-
-        mSpinner = activity.findViewById(R.id.idSpinner);
-
-        mAddAmount = activity.findViewById(R.id.idAddAmount); */
+        mPickedGrocery = (TextView) activity.findViewById(R.id.idSelectAmountPickedGrocery);
+        mSelectedAmount = (EditText) activity.findViewById(R.id.idSelectAmountSelectedAmount);
+        mSpinner = (Spinner) activity.findViewById(R.id.idSelectAmountSpinner);
+        mAddAmount = (Button) activity.findViewById(R.id.idSelectAmountAddAmount);
     }
 
     /* Getter methods */

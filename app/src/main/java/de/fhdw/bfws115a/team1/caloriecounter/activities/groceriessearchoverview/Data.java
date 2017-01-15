@@ -1,75 +1,77 @@
 package de.fhdw.bfws115a.team1.caloriecounter.activities.groceriessearchoverview;
 
+import android.content.Intent;
 import android.os.Bundle;
-import de.fhdw.bfws115a.team1.caloriecounter.entities.GroceriesEntity;
-import de.fhdw.bfws115a.team1.caloriecounter.entities.Grocery;
-import de.fhdw.bfws115a.team1.caloriecounter.entities.Menu;
-import de.fhdw.bfws115a.team1.caloriecounter.entities.Unit;
+import de.fhdw.bfws115a.team1.caloriecounter.constants.SearchSettings;
+import de.fhdw.bfws115a.team1.caloriecounter.database.DatabaseEntity;
+import de.fhdw.bfws115a.team1.caloriecounter.database.DatabaseEntityManager;
+import de.fhdw.bfws115a.team1.caloriecounter.database.DatabaseGroceriesEntity;
+import de.fhdw.bfws115a.team1.caloriecounter.entities.*;
 
 import java.util.ArrayList;
 
 public class Data {
-    private Init mActivity;
 
-    /* Data variables */
-    private String mDummyString;
-    private int mDummyInt;
-    private ArrayList<GroceriesEntity> mGroceriesEntityList;
-    private ListAdapter mListAdapter;
+    /* Member variable */
+    private Init mActivity;
+    private ArrayList<DatabaseGroceriesEntity> mDatabaseGroceriesEntityList;
+    private DatabaseEntityManager mDatabaseEntityManager;
+    private GroceriesEntity mSelectedEntity;
 
     /* Default values */
-    private final String DEFAULTDUMMYSTRING = "Dummy";
-    private final int DEFAULTDUMMYINT = 937;
+    private final int DEFAULT_SEARCH_SETTINGS = SearchSettings.DISPLAY_ALL.ordinal();
 
     /* Keys */
-    private final String KEYDUMMYSTRING = "groceriessearchoverview1";
-    private final String KEYDUMMYINT = "groceriessearchoverview2";
+    private final String KEY_GROCERIES_ENTITY_LIST = "groceriessearchoverview1";
+    private final String KEY_SELECTED_ENTITY = "groceriessearchoverview2";
 
-
+    /**
+     * Method which gets the current layout attributes and put them into an 'Intent' object.
+     * The reasons are possible saving and retrieving options of the data stored.
+     *
+     * @param savedInstanceState A bundle where data can be stored.
+     * @param activity           The current initialised activity.
+     */
     public Data(Bundle savedInstanceState, Init activity) {
         mActivity = activity;
-
-        mGroceriesEntityList = new ArrayList<GroceriesEntity>();
-        mGroceriesEntityList.add(new Grocery("Möhre", new Unit("Stück"), 2.0, 120));
-        mGroceriesEntityList.add(new Grocery("Hamburger", new Unit("g"), 200.0, 1200));
-        mGroceriesEntityList.add(new Grocery("Cola", new Unit("ml"), 330.0, 300));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-        mGroceriesEntityList.add(new Grocery("Kiwi", new Unit("g"), 50.0, 40));
-
-        Menu m1 = new Menu("Kleines McMenu", 1.0);
-        m1.addGrocery(new Grocery("Burger", new Unit("g"), 300.0, 1000));
-        m1.addGrocery(new Grocery("Cola", new Unit("ml"), 330.0, 300));
-
-        mGroceriesEntityList.add(m1);
-
-        mListAdapter = new ListAdapter(mActivity, mGroceriesEntityList);
+        mDatabaseEntityManager = new DatabaseEntityManager(mActivity.getApplicationContext());
+        SearchSettings searchSettings;
 
         if (savedInstanceState == null) {
-            mDummyString = DEFAULTDUMMYSTRING;
-            mDummyInt = DEFAULTDUMMYINT;
+            Intent intent = mActivity.getIntent();
+            searchSettings = SearchSettings.values()[intent.getIntExtra("searchSettings", DEFAULT_SEARCH_SETTINGS)];
+            mDatabaseGroceriesEntityList = new ArrayList<DatabaseGroceriesEntity>();
+            mSelectedEntity = null;
+
+            if (SearchSettings.DISPLAY_ONLY_GROCERY == searchSettings || SearchSettings.DISPLAY_ALL == searchSettings) {
+                mDatabaseGroceriesEntityList.addAll(mDatabaseEntityManager.getAllGroceries());
+            }
+            if (SearchSettings.DISPLAY_ONLY_MENU == searchSettings || SearchSettings.DISPLAY_ALL == searchSettings) {
+                mDatabaseGroceriesEntityList.addAll(mDatabaseEntityManager.getAllMenus());
+            }
         } else {
             restoreDataFromBundle(savedInstanceState);
         }
     }
 
+    /**
+     * Provides the possibility of saving the non-persistent data in a bundle.
+     *
+     * @param b The bundle where the data will be saved.
+     */
     public void saveDataInBundle(Bundle b) {
-        b.putString(KEYDUMMYSTRING, mDummyString);
-        b.putInt(KEYDUMMYINT, DEFAULTDUMMYINT);
+        b.putSerializable(KEY_GROCERIES_ENTITY_LIST, mDatabaseGroceriesEntityList);
+        b.putSerializable(KEY_SELECTED_ENTITY, mSelectedEntity);
     }
 
+    /**
+     * Provides the possibility of retrieving the saved non-persistent data.
+     *
+     * @param b The bundle where the data is saved in.
+     */
     private void restoreDataFromBundle(Bundle b) {
-        mDummyString = b.getString(KEYDUMMYSTRING);
-        mDummyInt = b.getInt(KEYDUMMYINT);
+        mDatabaseGroceriesEntityList = (ArrayList<DatabaseGroceriesEntity>) b.getSerializable(KEY_GROCERIES_ENTITY_LIST);
+        mSelectedEntity = (GroceriesEntity) b.getSerializable(KEY_SELECTED_ENTITY);
     }
 
     /* Getter methods */
@@ -77,8 +79,20 @@ public class Data {
         return mActivity;
     }
 
-    public ListAdapter getListAdapter() {
-        return mListAdapter;
+    public ArrayList<DatabaseGroceriesEntity> getDatabaseGroceriesEntityList() {
+        return mDatabaseGroceriesEntityList;
     }
+
+    public GroceriesEntity getSelectedEntity() {
+        return mSelectedEntity;
+    }
+
+    public DatabaseEntityManager getDatabaseEntityManager() {
+        return mDatabaseEntityManager;
+    }
+
     /* Setter methods */
+    public void setSelectedEntity(GroceriesEntity mSelectedEntity) {
+        this.mSelectedEntity = mSelectedEntity;
+    }
 }
